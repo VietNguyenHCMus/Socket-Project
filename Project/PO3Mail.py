@@ -4,7 +4,7 @@ import base64
 
 
 FORMAT = "utf8";
-SERVER_PORT_POP3 = 3335;
+SERVER_PORT_POP3 = 1100;
 
 MAX_SIZE = 1024*3
 
@@ -12,11 +12,11 @@ mailserver = '127.0.0.1';
 
 # chuẩn bị  tai khoan email:
 receiver = []
-receiver.append('pvnguyen@gmail.com')
+receiver.append('dgnlluyenthi@gmail.com')
 
 #chuẩn bị mat khau email:
 pass_recv = []
-pass_recv.append('22127299')
+pass_recv.append('Luyenthi20212022')
 
 # list_sender = []
 # list_subject = []
@@ -246,3 +246,5 @@ def chucNang_2(SERVER_PORT_POP3):
     clientSocket.send(b'QUIT\r\n')
     recv_quit = clientSocket.recv(1024).decode()
     print(recv_quit)
+
+   
