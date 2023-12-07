@@ -4,7 +4,7 @@ import base64
 
 
 FORMAT = "utf8";
-SERVER_PORT_POP3 = 1100;
+SERVER_PORT_POP3 = 3335;
 
 MAX_SIZE = 1024*3
 

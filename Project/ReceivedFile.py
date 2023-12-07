@@ -1,7 +1,7 @@
 import socket
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(('localhost', 2225))
+server.bind(('localhost2', 2225))
 server.listen()
 
 client, addr = server.accept()

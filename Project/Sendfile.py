@@ -1,5 +1,4 @@
-﻿from fileinput import filename
-import os
+﻿import os
 import socket
 
 # Tạo một socket của client
