@@ -4,11 +4,11 @@ import base64
 
 
 FORMAT = "utf8";
-SERVER_PORT_POP3 = 1100;
+SERVER_PORT_POP3 = 3335;
 
 MAX_SIZE = 1024*3
 
-mailserver = '127.0.0.1';
+mailserver = '172.16.10.149';
 
 # chuẩn bị  tai khoan email:
 receiver = []

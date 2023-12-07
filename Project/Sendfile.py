@@ -1,4 +1,5 @@
 ﻿from fileinput import filename
+from hmac import new
 import os
 import socket
 
@@ -6,22 +7,26 @@ import socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Kết nối đến server qua địa chỉ và cổng
-server_address = ('localhost', 8889)
+server_address = ('localhost', 3335)
 client_socket.connect(server_address)
 
-choice = input("Có gửi kèm file(1. Có, 2. Không): ")
+choice = int(input("Có gửi kèm file(1. Có, 2. Không): "))
+def new_func():
+    file_size = os.path.getsize("input.txt")
+    return file_size
+
 if choice == 1:
-    number_file = input("Số lượng file muốn gửi: ")
+    number_file = int(input("Số lượng file muốn gửi: "))
     
     while (number_file > 0):
 
-        filename = input("Cho biết đường dẫn file thứ " + number_file + ": ")
+        number_file -= 1
 
-        file = open(filename, "rb")
-        file_size = os.path.getsize(filename)
+        file = open("input.txt", "rb")
+        file_size = new_func()
 
-        client_socket.send((filename).encode())
-        client_socket.send(str(file_size).endcode())
+        client_socket.send(("newinput.txt").encode())
+        client_socket.send(str(file_size).encode())
 
         data = file.read()
         client_socket.sendall(data)

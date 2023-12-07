@@ -8,7 +8,7 @@ server_address = ('localhost', 8889)
 client_socket.connect(server_address)
 
 # Gửi dữ liệu đến server
-client_socket.send(data.encode('utf-8'))
+# client_socket.send(data.encode('utf-8'))
 
 # Nhận phản hồi từ server
 response = client_socket.recv(2048).decode('utf-8')
