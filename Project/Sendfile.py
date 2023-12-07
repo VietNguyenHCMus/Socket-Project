@@ -6,22 +6,22 @@ import socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Kết nối đến server qua địa chỉ và cổng
-server_address = ('localhost', 8889)
+server_address = ('localhost', 2225)
 client_socket.connect(server_address)
 
-choice = input("Có gửi kèm file(1. Có, 2. Không): ")
+choice = int(input("Có gửi kèm file(1. Có, 2. Không): "))
 if choice == 1:
-    number_file = input("Số lượng file muốn gửi: ")
+    number_file = int(input("Số lượng file muốn gửi: "))
     
     while (number_file > 0):
+        
+        number_file -= 1
 
-        filename = input("Cho biết đường dẫn file thứ " + number_file + ": ")
+        file = open("input.txt", "rb")
+        file_size = os.path.getsize("input.txt")
 
-        file = open(filename, "rb")
-        file_size = os.path.getsize(filename)
-
-        client_socket.send((filename).encode())
-        client_socket.send(str(file_size).endcode())
+        client_socket.send(("newinput.txt").encode())
+        client_socket.send(str(file_size).encode())
 
         data = file.read()
         client_socket.sendall(data)

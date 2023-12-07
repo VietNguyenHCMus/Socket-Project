@@ -14,7 +14,7 @@ msg = '{}. \r\nI love computer networks!'.format(EmailBody)
 endmsg = '\r\n.\r\n'
 
 # Choose a mail server (e.g., Google mail server) and call it mailserver
-server_address = ('localhost', 8889)
+server_address = ('localhost', 2225)
 
 # Fill in start
 # Creating socket called clientSocket
