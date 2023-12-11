@@ -3,12 +3,12 @@ import os
 import base64
 
 
-FORMAT = "utf8";
-SERVER_PORT_POP3 = 3335;
+FORMAT = "utf-8"
+SERVER_PORT_POP3 = 3335
 
 MAX_SIZE = 1024*3
 
-mailserver = '127.0.0.1';
+mailserver = '127.0.0.1'
 
 # chuẩn bị  tai khoan email:
 receiver = []
@@ -23,8 +23,8 @@ pass_recv.append('Luyenthi20212022')
 
 #chuadoc
 def check_doc(data):
-    if data[-7:] == 'chuadoc': return 1;
-    return 0;
+    if data[-7:] == 'chuadoc': return 1
+    return 0
 
 
 def Doc_Thu(folder, list_from, list_sub):
@@ -187,10 +187,8 @@ def chucNang_2(SERVER_PORT_POP3):
         subject_end_idx = response.find('Content')
         list_subject.append(response[subject_start_idx : (subject_end_idx - len('\r\n'))])
 
-
-
         # Xu ly loc mail:
-        if (list_sender[i-1] == 'ahihi@testing.com' or list_sender[i-1] == 'ahuu@testing.com'):
+        if (list_sender[i-1] == 'PhamVietNguyen@gmail.com' or list_sender[i-1] == 'VoHaiNam@gmail.com'):
             cnt = len(os.listdir('Project'))
             with open('Project\\Mail' + str(cnt + 1) + '.txt', "w") as attachment_file: # xb : kiểm tra nếu chưa có file đó thì tạo ra file mới tự động, còn có rồi thì kh thực hiện
                 attachment_file.write(response + 'chuadoc') # tai mail ve folder luon mac dinh la chua doc
@@ -210,9 +208,14 @@ def chucNang_2(SERVER_PORT_POP3):
             cnt = len(os.listdir('Inbox'))
             with open('Inbox\\Mail' + str(cnt + 1) + '.txt', "w") as attachment_file:
                 attachment_file.write(response + 'chuadoc')
+    	
+        clientSocket.send('DELE {}\r\n'.format(i))
+        response = clientSocket.recv(1024).decode()
 
-
-
+    # Send QUIT command and get server response.
+    clientSocket.send(b'QUIT\r\n')
+    recv_quit = clientSocket.recv(1024).decode()
+    
     print('Đây là danh sách các folder trong mailbox của bạn: ')
     print('1. Inbox')
     print('2. Project')
@@ -238,14 +241,6 @@ def chucNang_2(SERVER_PORT_POP3):
 
 
 
-
-    # # Gửi lệnh DELE để đánh dấu email đã tải
-    # clientSocket.send(b'DELE 1\r\n')
-
-    # Send QUIT command and get server response.
-    clientSocket.send(b'QUIT\r\n')
-    recv_quit = clientSocket.recv(1024).decode()
-    print(recv_quit)
 
 if __name__ == '__main__':
     chucNang_2(SERVER_PORT_POP3)
