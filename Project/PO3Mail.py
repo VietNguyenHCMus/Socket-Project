@@ -8,11 +8,11 @@ SERVER_PORT_POP3 = 3335;
 
 MAX_SIZE = 1024*3
 
-mailserver = '172.16.10.149';
+mailserver = '127.0.0.1';
 
 # chuẩn bị  tai khoan email:
 receiver = []
-receiver.append('dgnlluyenthi@gmail.com')
+receiver.append('Viettoantamky@gmail.com')
 
 #chuẩn bị mat khau email:
 pass_recv = []
@@ -247,4 +247,5 @@ def chucNang_2(SERVER_PORT_POP3):
     recv_quit = clientSocket.recv(1024).decode()
     print(recv_quit)
 
-   
+if __name__ == '__main__':
+    chucNang_2(SERVER_PORT_POP3)
