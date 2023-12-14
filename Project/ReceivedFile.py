@@ -1,31 +1,34 @@
-import socket
+﻿import socket
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(('localhost2', 2225))
-server.listen()
+FORMAT = "uft-8"
+SIZE = 1024
+# Tạo một socket của client
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-client, addr = server.accept()
+# Kết nối đến server qua địa chỉ và cổng
+server_address = ('localhost', 3335)
 
-file_name = client.recv(1024).decode()
-print(file_name)
-file_size = client.recv(1024).decode()
-print(file_size)
-
-file = open(file_name, "wb")
-
-file_byte = b""
-
-done = False
-
-while not done:
-    data = client.recv(1024)
-    if file_byte[-5:] == b"<END>":
-        done = True
-    else:
-        file_byte += data
-
-file.write(file_byte)
-
-file.close()
-client.close()
-server.close()
+def receivedFile(client_socket, server_address):
+    
+    client_socket.connect(server_address)
+    conn = client_socket.accept()
+    # Receiving filename and filesize from sendFile func           
+    data = conn.recv(SIZE).decode(FORMAT)
+    item = data.split("_")
+    filename = item[0]
+    filesize = int(item[1])
+    conn.send("Filename and filesize received".encode(FORMAT))
+    
+    # Data transfer
+    
+    with open(f"recv_{filename}", "wb") as f:
+        data = conn.recv(SIZE)
+        
+        while data:
+            f.write(data)
+            data = conn.recv(SIZE)
+        conn.close()
+        f.close()
+        
+    client_socket.close()
+receivedFile(client_socket, server_address)
