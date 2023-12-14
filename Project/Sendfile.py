@@ -1,5 +1,6 @@
 ﻿import os
 import socket
+import base64
 
 # Tạo một socket của client
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

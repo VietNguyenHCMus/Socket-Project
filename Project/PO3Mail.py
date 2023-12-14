@@ -115,7 +115,7 @@ def Doc_Thu(folder, list_from, list_sub):
 
 
 
-
+# HAM NHAN MAIL ---------------------------------------------------------------------------------------------------------
 def chucNang_2(SERVER_PORT_POP3):
     list_sender = []
     list_subject = []
