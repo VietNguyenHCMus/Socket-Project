@@ -10,7 +10,7 @@ Subject = input("Enter Email Subject: ")
 EmailBody = input("Enter Email Body Message: ")
 
 # Message included in body
-msg = '{}. \r\nI love computer networks!'.format(EmailBody)
+msg = '{}. \r\n'.format(EmailBody)
 endmsg = '\r\n.\r\n'
 
 # Choose a mail server (e.g., Google mail server) and call it mailserver
@@ -30,7 +30,7 @@ if confMsg[:3] != '220':
     print('220 reply not received from server.')
 
 # Send HELO command and print server response.
-heloCommand = 'HELO Alice\r\n'.encode()
+heloCommand = 'HELLO\r\n'.encode()
 clientSocket.send(heloCommand)
 recv1 = clientSocket.recv(1024).decode()
 print(recv1)
