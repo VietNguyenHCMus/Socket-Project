@@ -115,7 +115,7 @@ def Doc_Thu(folder, list_from, list_sub):
 
 
 
-
+# HAM NHAN MAIL ---------------------------------------------------------------------------------------------------------
 def chucNang_2(SERVER_PORT_POP3):
     list_sender = []
     list_subject = []
@@ -188,7 +188,7 @@ def chucNang_2(SERVER_PORT_POP3):
         list_subject.append(response[subject_start_idx : (subject_end_idx - len('\r\n'))])
 
         # Xu ly loc mail:
-        if (list_sender[i-1] == 'PhamVietNguyen@gmail.com' or list_sender[i-1] == 'VoHaiNam@gmail.com'):
+        if (list_sender[i-1] == 'ahihi@testing.com' or list_sender[i-1] == 'ahuu@testing.com'):
             cnt = len(os.listdir('Project'))
             with open('Project\\Mail' + str(cnt + 1) + '.txt', "w") as attachment_file: # xb : kiểm tra nếu chưa có file đó thì tạo ra file mới tự động, còn có rồi thì kh thực hiện
                 attachment_file.write(response + 'chuadoc') # tai mail ve folder luon mac dinh la chua doc
