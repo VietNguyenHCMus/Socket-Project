@@ -4,96 +4,96 @@ import base64
 format = "utf-8"
 
 #chuadoc
-def check_doc(data):
-    if data[-7:] == 'chuadoc': return 1
-    return 0
+def read_emails(folder, sender_list, subject_list):
+    emails_data = []
 
-
-def Doc_Thu(folder, list_from, list_sub):
-    list_data = []
-
+    # Read email data from files in the specified folder
     for i in range(len(os.listdir(folder))):
-        with open(folder + '\Mail' + str(i + 1) + '.txt', 'r') as attachment_file:
-            attachment_data = attachment_file.read()
-        data = attachment_data  # Mã hóa base64
-        list_data.append(data)
+        with open(f"{folder}\\Mail{i + 1}.txt", 'r') as file:
+            email_data = file.read()
+        emails_data.append(email_data)
 
-    for i in range (len(list_data)):
-        if (check_doc(list_data[i]) == 1):
-            print('(chưa đọc)' + str(i+1) + '. <' + list_from[i] + '>, <' + list_sub[i] + '>')
-        else:
-            print(str(i+1) + '. <' + list_from[i] + '>, <' + list_sub[i] + '>')
-    
-    check = int(input('\nBạn muốn đọc Email thứ mấy (hoặc nhấn enter để thoát ra ngoài, hoặc nhấn 0 để xem lại danh sách email): '))
-    if (check != 0):
-        print('Nội dung email của email thứ ' + str(check) + ': ')
-        # lấy nội dung email:
-        print(list_data[0])
-        data_idx = list_data[check-1].find('Content-Type:text/plain;charset=UTF-8;format=flowed') + len('Content-Type:text/plain;charset=UTF-8;format=flowed\r\n\r\n')
-        if (list_data[check-1].find('Content-Transfer-Encoding: base64') != -1): # có file đính kèm
-            data_idx_end = list_data[check -1].find('--boundary', data_idx);
-            data_res = list_data[check -1][data_idx : data_idx_end]
-            print(data_res)
-        else: # không có file đính kèm
-            data_idx_end = list_data[check -1].find('--boundary--', data_idx)
-            data_res = list_data[check -1][data_idx : data_idx_end]
-            print(data_res)
-        
-        if (list_data[check-1].find('Content-Transfer-Encoding: base64') == -1): return; # kh có attachment file
-    
+    # Display email list with read/unread status
+    for i, email in enumerate(emails_data, start=1):
+        status = "(unread)" if check_if_unread(email) 
+    else ""
+        print(f"{status}{i}. <{sender_list[i - 1]}>, <{subject_list[i - 1]}>")
 
-        char = input('Trong email này có attached file, bạn có muốn save không : ')
-        if (char == 'có' or char == 'co'):
-            path = input('Cho biết đường dẫn bạn muốn lưu (nhập thêm kí tự \ vào cuối): ')
+    # Choose an email to read
+    email_choice = int(input("\nEnter the number of the email to read "
+                             "(or press Enter to exit, or 0 to see the list again): "))
 
-            # xác định nếu có file đính kèm và lấy thong tin file:
-            pos = 0
-            i = 0
-            num_file = list_data[check -1].count('Content-Transfer-Encoding: base64')
-            attachment_start = -1
-            while (list_data[check -1].find('Content-Transfer-Encoding: base64', pos) != -1):
-                attachment_start = list_data[check -1].find('Content-Transfer-Encoding: base64', pos)
-                if attachment_start != -1: # có file
-                    i += 1
-                    idx_start = attachment_start + len('Content-Transfer-Encoding: base64\r\n\r\n'); # cho \r\n\r\n
-                    idx_end = 0
-                    if (i != num_file):
-                        idx_end = list_data[check -1].find('--boundary', idx_start)
-                    else:
-                        idx_end = list_data[check -1].find('--boundary--')
-                    res = list_data[check -1][idx_start : idx_end]
+    if email_choice == 0:
+        return
+    elif 1 <= email_choice <= len(emails_data):
+        print(f"\nEmail content of email {email_choice}: ")
+        print(emails_data[email_choice - 1])
 
-                    # print(res)
-                    #tên file đính kèm:
-                    attachment_file = ''
-                    if (list_data[check -1].find('Content-Type:application/octet-stream', pos, idx_end) != -1):
-                        attachment_file = 'download.txt'
-                    elif (list_data[check -1].find('Content-Type:application/pdf', pos, idx_end) != -1):
-                        attachment_file = 'download.pdf'
-                    elif(list_data[check -1].find('Content-Type:application/msword', pos, idx_end) != -1):
-                        attachment_file = 'download.docx'
-                    elif (list_data[check -1].find('Content-Type:image/jpeg', pos, idx_end) != -1):
-                        attachment_file = 'download.jpg'
-                    elif (list_data[check -1].find('Content-Type:application/zip', pos, idx_end) != -1):
-                        attachment_file = 'download.zip'
+        # Extract email content
+        email_content = emails_data[email_choice - 1]
+        content_start = email_content.find('Content-Type:text/plain;charset=UTF-8;format=flowed') + len('Content-Type:text/plain;charset=UTF-8;format=flowed\r\n\r\n')
 
-                    # print(attachment_file)
-                    # kiểm tra -> tạo file -> ghi dữ liệu vào:
-                    if not os.path.exists(path + attachment_file):
-                        with open(attachment_file, "xb") as attachment_file: # xb : kiểm tra nếu chưa có file đó thì tạo ra file mới tự động, còn có rồi thì kh thực hiện
-                            attachment_file.write(base64.b64decode(res))
-                    else:
-                        print('file alredy exist');
+        # Check for attached files
+        if 'Content-Transfer-Encoding: base64' in email_content:
+            content_end = email_content.find('--boundary', content_start)
+            content = email_content[content_start: content_end]
+            print(content)
 
-                    pos = idx_end
-    
-    # đổi lại mail này thành mail đã đọc:
-    if (check_doc(list_data[check -1]) == 1):
-        with open(folder + '\\Mail' + str(check) + '.txt', "w") as attachment_file: # wb : mở file, xóa nd cũ, ghi nd mới
-            attachment_file.write(list_data[check-1].replace('chuadoc', 'dadoc'))
+            # Prompt to save attached file
+            user_input = input('This email contains an attached file. Do you want to save it: ')
+            if user_input.lower() in ['yes', 'y']:
+                save_attachment(email_content, email_choice)
 
-# HET HAM DOC THU ----------------------------------------------------------------------------------------------------
+        # Mark the email as read
+        mark_as_read(folder, email_choice, emails_data[email_choice - 1])
 
+def check_if_unread(email_data):
+    return 'unread' in email_data
+
+def save_attachment(email_content, email_choice):
+    path = input('Specify the path to save the attachment (add \ at the end): ')
+    position = 0
+    file_counter = email_content.count('Content-Transfer-Encoding: base64')
+
+    while 'Content-Transfer-Encoding: base64' in email_content[position:]:
+        attachment_start = email_content.find('Content-Transfer-Encoding: base64', position)
+        if attachment_start != -1:
+            file_counter -= 1
+            start_index = attachment_start + len('Content-Transfer-Encoding: base64\r\n\r\n')
+            end_index = 0
+            if file_counter != 0:
+                end_index = email_content.find('--boundary', start_index)
+            else:
+                end_index = email_content.find('--boundary--')
+            attachment_data = email_content[start_index: end_index]
+
+            attachment_name = determine_attachment_type(email_content, position, end_index)
+
+            if not os.path.exists(path + attachment_name):
+                with open(attachment_name, "xb") as attachment_file:
+                    attachment_file.write(base64.b64decode(attachment_data))
+            else:
+                print('File already exists')
+
+            position = end_index
+
+def determine_attachment_type(email_content, start, end):
+    attachment_types = {
+        'application/octet-stream': 'download.txt',
+        'application/pdf': 'download.pdf',
+        'application/msword': 'download.docx',
+        'image/jpeg': 'download.jpg',
+        'application/zip': 'download.zip'
+    }
+
+    for content_type, file_name in attachment_types.items():
+        if content_type in email_content[start:end]:
+            return file_name
+
+def mark_as_read(folder, email_number, email_data):
+    if check_if_unread(email_data):
+        with open(f"{folder}\\Mail{email_number}.txt", "w") as file:
+            file.write(email_data.replace('unread', 'read'))
 
 
 
