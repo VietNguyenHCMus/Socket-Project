@@ -41,5 +41,7 @@ def sendFile(client_socket):
             with open(filename, "rb") as f:
                 data = f.read()
         
-            data = base64.b64encode(data).decode(FORMAT)
-            client_socket.sendall(data.encode(FORMAT) + b'\r\n')
+            data_encode = base64.b64encode(data).decode(FORMAT)
+            chunk_size = 76
+            for i in range(0, len(data_encode), chunk_size):
+                client_socket.send(data_encode[i:i+chunk_size].encode(FORMAT) + b'\r\n')
