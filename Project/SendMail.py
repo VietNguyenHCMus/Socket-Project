@@ -4,6 +4,8 @@ from socket import *
 import ssl
 from Sendfile import sendFile
 
+FORMAT = 'utf-8'
+
 localhost = '127.0.0.1'
 
 SenderEmail = input("Enter Your Email Address: ")
@@ -14,7 +16,6 @@ EmailBody = input("Enter Email Body Message: ")
 
 # Message included in body
 msg = '{}. \r\n'.format(EmailBody)
-endmsg = '\r\n.\r\n'
 
 # Choose a mail server (e.g., Google mail server) and call it mailserver
 server_address = (localhost, 2225)
@@ -25,7 +26,6 @@ clientSocket = socket(AF_INET, SOCK_STREAM)
 
 # Establishing a TCP connection with mailserver
 clientSocket.connect(server_address)
-# Fill in end
 
 confMsg = clientSocket.recv(1024)
 print(confMsg)
@@ -59,21 +59,27 @@ confMsg7 = clientSocket.recv(1024).decode()
 print(confMsg7)
 
 # Send message data.
-clientSocket.send("From: {}\nTo: {}\nSubject: {}\n\n{}".format(SenderEmail, ReceiverEmail, Subject, msg).encode())
-
-# Message ends with a single period.
-clientSocket.send(endmsg.encode())
-confMsg8 = clientSocket.recv(1024).decode()
-print(confMsg8)
+clientSocket.send("From: {}\nTo: {}\nSubject: {}\n".format(SenderEmail, ReceiverEmail, Subject).encode())
+clientSocket.send(b'Content-Type: multipart/mixed; boundary = "<END>"\r\n\r\n')
+clientSocket.send(b'--<END>\r\n')
+clientSocket.send(b'Content-Type: text/plain; charset =UTF-8; format=flowed\r\n\r\n')
+clientSocket.send(msg.encode(FORMAT) + b'\r\n')
 
 # Send file
 sendFile(clientSocket)
+
+# End email
+clientSocket.send(b'--<END>--\r\n.\r\n')
+confMsg8 = clientSocket.recv(1024).decode()
+print(confMsg8)
 
 # Send QUIT command and get server response.
 quitcommand = 'QUIT\r\n'
 clientSocket.send(quitcommand.encode())
 confMsg9 = clientSocket.recv(1024).decode()
 print(confMsg9)
+
+
 
 clientSocket.close()
 print('Was successful!')

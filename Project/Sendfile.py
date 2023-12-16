@@ -18,15 +18,28 @@ def sendFile(client_socket):
             temp = "Cho biết đường dẫn thứ {}".format(ordinal_number) + ": "
             ordinal_number += 1
             
-            filename = input(temp) 
+            attachment_path = input(temp) 
+            filename = os.path.basename(attachment_path)
+           
             
-            # Sending filename and filesize to server
-            data = f"{filename}"
-            client_socket.send(data.encode())
+            # Check content-type
+            content_type = filename[-3:]
+            temp = b''
+            if(content_type == 'txt'): temp = 'application/octet-stream'
+            if(content_type == 'pdf'): temp = 'application/pdf'
+            if(content_type == 'ocx'): temp = 'application/msword'
+            if(content_type == 'jpg'): temp = 'image/jpeg'
+            if(content_type == 'png'): temp = 'image/png'
+            if(content_type == 'zip'): temp = 'application/zip'
+                
+            client_socket.send(b'--<END>\r\n')
+            client_socket.send(f'Content-Type: {temp}; name="{filename}"\r\n'.encode(FORMAT))
+            client_socket.send(f'Content-Disposition: attachment; filename="{filename}"\r\n'.encode(FORMAT))
+            client_socket.send(f'Content-Transfer-Encoding: base64\r\n\r\n'.encode(FORMAT))
             
             # Data transfer
             with open(filename, "rb") as f:
                 data = f.read()
         
             data = base64.b64encode(data).decode(FORMAT)
-            client_socket.sendall(data.encode(FORMAT))
+            client_socket.sendall(data.encode(FORMAT) + b'\r\n')
