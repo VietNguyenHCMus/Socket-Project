@@ -1,25 +1,7 @@
 ﻿import socket
 import os
 import base64
-
-
-FORMAT = "utf-8"
-SERVER_PORT_POP3 = 3335
-
-MAX_SIZE = 1024*3
-
-mailserver = '127.0.0.1'
-
-# chuẩn bị  tai khoan email:
-receiver = []
-receiver.append('Viettoantamky@gmail.com')
-
-#chuẩn bị mat khau email:
-pass_recv = []
-pass_recv.append('Luyenthi20212022')
-
-# list_sender = []
-# list_subject = []
+format = "utf-8"
 
 #chuadoc
 def check_doc(data):
@@ -115,107 +97,94 @@ def Doc_Thu(folder, list_from, list_sub):
 
 
 
-# HAM NHAN MAIL ---------------------------------------------------------------------------------------------------------
-def chucNang_2(SERVER_PORT_POP3):
-    list_sender = []
-    list_subject = []
-    # Create socket called clientSocket and establish a TCP connection with mailserver
-    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
-    clientSocket.connect((mailserver, SERVER_PORT_POP3))
-
-    # nhận thông báo từ mail server:
-    response = clientSocket.recv(1024).decode();
-    # print(response)
-    # if (response[:3] != '+OK'):
-    #     print('TEST MAIL SERVER NOT REQUIRED');
-
-    # gửi lệnh USER để xác thực:
-    clientSocket.send(b'USER ' + receiver[0].encode(FORMAT) + b'\r\n')
-    response = clientSocket.recv(1024).decode()
-    # print(response)
-    # if (response[:3] != '+OK'):
-    #     print('USER NOT REQUIRED')
-
-    # gửi lệnh pass để xác thực:
-    clientSocket.send(b'PASS ' + pass_recv[0].encode(FORMAT) + b'\r\n')
-    response = clientSocket.recv(1024).decode()
-    # print(response);
-    # if (response[:3] != '+OK'):
-    #     print('PASS NOT REQUIRED')
-
-    # gửi lệnh STAT -> lấy số byte có trong mail:
-    clientSocket.send('STAT\r\n'.encode(FORMAT))
-    response = clientSocket.recv(1024).decode();
-    # print(response);
-    # if (response[:3] != '+OK'):
-    #     print('STAT NOT REQUIRED')
-
-    # gửi lệnh LIST để lấy danh sách email
-    clientSocket.send('LIST\r\n'.encode(FORMAT))
-    response = clientSocket.recv(1024).decode()
-    # print(response)
-    # if (response[:3] != '+OK'):
-    #     print('LIST NOT REQUIRED')
-
-    # gửi lệnh UIDL
-    clientSocket.send('UIDL\r\n'.encode(FORMAT))
-    response = clientSocket.recv(1024).decode()
-    # print(response)
-    # if (response[:3] != '+OK'):
-    #     print('UILD NOT RESPONSE')
-
-    num_Email = response.count('.msg')
-    # gửi lệnh RETR để lấy nội dung email theo số thứ tự
-    for i in range(1, num_Email + 1):
-        clientSocket.send(('RETR ' + str(i) + '\r\n').encode(FORMAT))
-        response = b''  # Sử dụng bytes để nắm bắt dữ liệu nhận được
-
+def receiveMail(Host, port, username, password):
+    
+    current = os.getcwd()
+    user_path = os.path.join(current, username)
+    if os.path.exists(user_path) == False:
+        os.makedirs(username)
+        os.mkdir(os.path.join(user_path, 'Inbox'))
+        os.mkdir(os.path.join(user_path, 'Work'))
+        os.mkdir(os.path.join(user_path, 'Important'))
+        os.mkdir(os.path.join(user_path, 'Spam'))
+        os.mkdir(os.path.join(user_path, 'Project'))
+    
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client.connect((Host, int(port)))
+    response = client.recv(1024).decode()
+    client.send('USER {}\r\n'.format(username).encode(format))
+    response = client.recv(1024).decode()
+    client.send('PASS {}\r\n'.format(password).encode(format))
+    response = client.recv(1024).decode()
+    client.send('STAT\r\n'.encode(format))
+    response = client.recv(1024).decode()
+    client.send('LIST\r\n'.encode(format))
+    response = client.recv(1024).decode()
+    client.send('UIDL\r\n'.encode(format))
+    response = client.recv(1024).decode()
+    
+    list_name_mail = [item.split(' ')[1] for item in response.splitlines()[1:-1]]
+    
+    list_sender, list_subject = [], []
+    for i in range(len(list_name_mail)):
+        client.send('RETR {}\r\n'.format(i+1).encode(format))
+        data = ""
         while True:
-            part = clientSocket.recv(1024)
-            response += part
-            if b'\r\n.\r\n' in part:
-                break
-        response = response.decode()
+            response = client.recv(1024)
+            data += response.decode()
+            if b'\r\n.\r\n' in response: break
+        
+        from_start_idx = data.find('From:') + len('From:') + 1
+        from_end_idx = data.find('To:')
+        list_sender.append(data[from_start_idx : (from_end_idx - len('\r\n'))])
 
-        # Vì sử dụng 1 lệnh response = clientSocket.recv(1024).decode() -> không thể lấy hết được dữ liệu 1 lần trên đường truyền -> dùng vòng while để lấy đủ dữ liệu -> bỏ vào file
-        #Di chuyển các email được gửi từ địa chỉ ahihi@testing.com và ahuu@testing.com vào thư mục Project
-        from_start_idx = response.find('From:') + len('From:')
-        from_end_idx = response.find('Subject:')
-        list_sender.append(response[from_start_idx : (from_end_idx - len('\r\n'))])
-
-        subject_start_idx = response.find('Subject:') + len('Subject:')
-        subject_end_idx = response.find('Content')
-        list_subject.append(response[subject_start_idx : (subject_end_idx - len('\r\n'))])
+        subject_start_idx = data.find('Subject:') + len('Subject:') + 1
+        subject_end_idx = data.find('Content')
+        list_subject.append(data[subject_start_idx : (subject_end_idx - len('\r\n'))])
+        ################################################################################################
 
         # Xu ly loc mail:
-        if (list_sender[i-1] == 'ahihi@testing.com' or list_sender[i-1] == 'ahuu@testing.com'):
-            cnt = len(os.listdir('Project'))
-            with open('Project\\Mail' + str(cnt + 1) + '.txt', "w") as attachment_file: # xb : kiểm tra nếu chưa có file đó thì tạo ra file mới tự động, còn có rồi thì kh thực hiện
-                attachment_file.write(response + 'chuadoc') # tai mail ve folder luon mac dinh la chua doc
-        elif (list_subject[i-1] == 'urgent' or list_subject[i-1] == 'ASAP'):
-            cnt = len(os.listdir('Important'))
-            with open('Important\\Mail' + str(cnt + 1) + '.txt', "w") as attachment_file:
-                attachment_file.write(response + 'chuadoc')
-        elif (response.find('report') != -1 or response.find('meeting') != -1):
-            cnt = len(os.listdir('Work'))
-            with open('Work\\Mail' + str(cnt + 1) + '.txt', "w") as attachment_file:
-                attachment_file.write(response + 'chuadoc')
-        elif (list_subject[i-1] == 'virus' or list_subject[i-1] == 'hack' or list_subject[i-1] == 'crack'):
-            cnt = len(os.listdir('Spam'))
-            with open('Spam\\Mail' + str(cnt + 1) + '.txt', "w") as attachment_file:
-                attachment_file.write(response + 'chuadoc')
+        if (list_sender[i] == 'ahihi@testing.com' or list_sender[i] == 'ahuu@testing.com'):
+            folder_path = os.path.join(os.path.join(user_path, 'Project'))
+            cnt = len(os.listdir(folder_path))
+            file_path = os.path.join(folder_path,str(cnt+1))
+            with open(file_path, "w") as attachment_file: 
+                attachment_file.write(data + 'chuadoc')
+        elif (list_subject[i] == 'urgent' or list_subject[i] == 'ASAP'):
+            folder_path = os.path.join(os.path.join(user_path, 'Important'))
+            cnt = len(os.listdir(folder_path))
+            file_path = os.path.join(folder_path,str(cnt+1))
+            with open(file_path, "w") as attachment_file: 
+                attachment_file.write(data + 'chuadoc')
+        elif (data.find('report') != -1 or data.find('meeting') != -1):
+            folder_path = os.path.join(os.path.join(user_path, 'Work'))
+            cnt = len(os.listdir(folder_path))
+            file_path = os.path.join(folder_path,str(cnt+1))
+            with open(file_path, "w") as attachment_file: 
+                attachment_file.write(data + 'chuadoc')
+        elif (list_subject[i] == 'virus' or list_subject[i] == 'hack' or list_subject[i] == 'crack'):
+            folder_path = os.path.join(os.path.join(user_path, 'Spam'))
+            cnt = len(os.listdir(folder_path))
+            file_path = os.path.join(folder_path,str(cnt+1))
+            with open(file_path, "w") as attachment_file: 
+                attachment_file.write(data + 'chuadoc')
         else:
-            cnt = len(os.listdir('Inbox'))
-            with open('Inbox\\Mail' + str(cnt + 1) + '.txt', "w") as attachment_file:
-                attachment_file.write(response + 'chuadoc')
-    	
-        clientSocket.send('DELE {}\r\n'.format(i))
-        response = clientSocket.recv(1024).decode()
-
-    # Send QUIT command and get server response.
-    clientSocket.send(b'QUIT\r\n')
-    recv_quit = clientSocket.recv(1024).decode()
+            folder_path = os.path.join(os.path.join(user_path, 'Inbox'))
+            cnt = len(os.listdir(folder_path))
+            file_path = os.path.join(folder_path,str(cnt+1))
+            with open(file_path, "w") as attachment_file: 
+                attachment_file.write(data + 'chuadoc')
+        
+        client.send('DELE {}\r\n'.format(i+1).encode(format))
+        response = client.recv(1024).decode()
     
+    client.send('QUIT\r\n'.encode(format))
+    client.recv(1024).decode()
+
+
+
+
+    print('Nhan thu thanh cong!')
     print('Đây là danh sách các folder trong mailbox của bạn: ')
     print('1. Inbox')
     print('2. Project')
@@ -239,8 +208,3 @@ def chucNang_2(SERVER_PORT_POP3):
         elif choose == '5':
             Doc_Thu('Spam', list_sender, list_subject)
 
-
-
-
-if __name__ == '__main__':
-    chucNang_2(SERVER_PORT_POP3)

@@ -1,35 +1,35 @@
-﻿import PO3Mail
-from SendMail import sendMail
-import socket
+﻿import json
+import SendMail
+import ReceiveMail
 
-localhost = '127.0.0.1'
-IP = 2225
-
-# Tạo một socket của client
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# Kết nối đến server qua địa chỉ và cổng
-server_address = (localhost, IP)
 
 def main():
-    temp = int()
-    while(temp != 3):
-        print("Vui long chon Menu: ")
-        print("1. Để gửi email")
-        print("2. Để xem danh sách các email đã nhận")
-        print("3. Thoát")
-        choice = int(input("Bạn chọn: "))
-        while(choice):
-            if(choice == 1): 
-                sendMail(server_address)
-                break
-            if(choice == 2):
-                break
-            if(choice == 3):
-                temp = choice
-                break
+    with open('General.json', 'r') as file:
+        data = json.load(file)
+    user = data['user']
+    server = data['server']
+    user_ip = input('Enter username: ')
+    user_pass = input('Enter password: ')
+    if user_ip in user:
+        if user[user_ip] == user_pass:
+            print('Login successfully')
+        else: 
+            return
+    else:
+        return
+
+    while True:
+        choose = input('Menu\n1. Send Mail\n2. Receive Mail\n3. Exit\nYour choice: ')
+        if choose == "1":
+            SendMail.sendMail(server["HOST"],int(server["SMTP"]),user_ip)
+        elif choose == '2':
+            ReceiveMail.receiveMail(server["HOST"], int(server["POP3"]), user_ip, user_pass)
+        elif choose == '3':
             break
-        
-if __name__ == '__main__':
+        else:
+            print('Nhap lai di!')
+    
+    print('Exit Successfully!')
+    
+if __name__ == "__main__":
     main()
-        
