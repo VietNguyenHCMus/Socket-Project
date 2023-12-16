@@ -2,11 +2,12 @@
 
 FORMAT = "uft-8"
 SIZE = 1024
+localhost = '127.0.0.1'
 # Tạo một socket của client
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Kết nối đến server qua địa chỉ và cổng
-server_address = ('localhost', 3335)
+server_address = (localhost, 3335)
 
 def receivedFile(client_socket, server_address):
     
