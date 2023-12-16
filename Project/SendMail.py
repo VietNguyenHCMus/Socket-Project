@@ -1,18 +1,11 @@
-﻿from getpass import getpass
-from socket import *
-import ssl
+﻿from socket import *
 from Sendfile import sendFile
 
 FORMAT = 'utf-8'
 
-localhost = '127.0.0.1'
-IP = 2225
-server_address = (localhost, IP)
-
-
-def sendMail(server_address):
+def sendMail(localhost, PORT, SenderEmail):
+    server_address = (localhost, PORT)
     print("Đây là thông tin soạn email: (nếu không điền vui lòng nhấn enter để bỏ qua)")
-    SenderEmail = input("FROM: ")
     # SenderPassword = getpass("Enter Your Password: ")  # Commented out to remove password input
     ReceiverEmail = input("TO: ")
     Subject = input("SUBJECT: ")
@@ -31,7 +24,7 @@ def sendMail(server_address):
     confMsg = clientSocket.recv(1024)
 
     # Send HELO command and print serverresponse.
-    heloCommand = 'EHLO ' + localhost + '\r\n';
+    heloCommand = 'EHLO ' + localhost + '\r\n'
     clientSocket.send(heloCommand.encode())
     recv1 = clientSocket.recv(1024).decode()
 
@@ -71,8 +64,8 @@ def sendMail(server_address):
     clientSocket.send(quitcommand.encode())
     confMsg9 = clientSocket.recv(1024).decode()
 
-
-
     clientSocket.close()
-    print('Đã gửi email thành công')
+    print('Đã gửi email thành công\n')
     
+if __name__ == "__main__":
+    sendMail()
