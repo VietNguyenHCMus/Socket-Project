@@ -6,7 +6,6 @@ FORMAT = 'utf-8'
 def sendMail(localhost, PORT, SenderEmail):
     server_address = (localhost, PORT)
     print("Đây là thông tin soạn email: (nếu không điền vui lòng nhấn enter để bỏ qua)")
-    # SenderPassword = getpass("Enter Your Password: ")  # Commented out to remove password input
     ReceiverEmail = input("TO: ")
     Subject = input("SUBJECT: ")
     EmailBody = input("CONTENT: ")
