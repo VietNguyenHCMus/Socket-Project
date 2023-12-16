@@ -2,18 +2,10 @@
 import socket
 import base64
 
-FORMAT = "uft-8"
+FORMAT = "utf8"
 SIZE = 1024
-# Tạo một socket của client
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Kết nối đến server qua địa chỉ và cổng
-server_address = ('localhost', 3335)
-
-
-def sendFile(client_socket, server_address):
-
-    client_socket.connect(server_address)
+def sendFile(client_socket):
 
     choice = int(input("Có gửi kèm file(1. Có, 2. Không): "))
     if choice == 1:
@@ -27,22 +19,14 @@ def sendFile(client_socket, server_address):
             ordinal_number += 1
             
             filename = input(temp) 
-            filesize = os.path.getsize(filename)
             
             # Sending filename and filesize to server
-            data = f"{filename}_{filesize}"
+            data = f"{filename}"
             client_socket.send(data.encode())
             
             # Data transfer
             with open(filename, "rb") as f:
                 data = f.read()
-                while data:
-                    client_socket.send(data)
-                    data = f.read(SIZE)
-                f.close()
-                
-
-    client_socket.close()
-    
-
-sendFile(client_socket, server_address)
+        
+            data = base64.b64encode(data).decode(FORMAT)
+            client_socket.sendall(data.encode(FORMAT))
