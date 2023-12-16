@@ -3,7 +3,6 @@ import os
 import base64
 format = "utf-8"
 
-#chuadoc
 def read_emails(folder, sender_list, subject_list):
     emails_data = []
 
@@ -15,8 +14,7 @@ def read_emails(folder, sender_list, subject_list):
 
     # Display email list with read/unread status
     for i, email in enumerate(emails_data, start=1):
-        status = "(unread)" if check_if_unread(email) 
-    else ""
+        status = "(unread)" if check_if_unread(email) else ""
         print(f"{status}{i}. <{sender_list[i - 1]}>, <{subject_list[i - 1]}>")
 
     # Choose an email to read
@@ -94,6 +92,8 @@ def mark_as_read(folder, email_number, email_data):
     if check_if_unread(email_data):
         with open(f"{folder}\\Mail{email_number}.txt", "w") as file:
             file.write(email_data.replace('unread', 'read'))
+
+
 
 
 
@@ -191,20 +191,23 @@ def receiveMail(Host, port, username, password):
     print('3. Important')
     print('4. Work')
     print('5. Spam')
+    
 
-    while (1):
-        choose = input('Bạn muốn xem email trong folder nào (Nhấn enter để thoát ra ngoài): ')
-
-        if (not choose):
-            break
-        elif choose == '1':
-            Doc_Thu('Inbox', list_sender, list_subject)
-        elif choose == '2':
-            Doc_Thu('Project', list_sender, list_subject)
-        elif choose == '3':
-            Doc_Thu('Important', list_sender, list_subject)
-        elif choose == '4':
-            Doc_Thu('Work', list_sender, list_subject)
-        elif choose == '5':
-            Doc_Thu('Spam', list_sender, list_subject)
+    current = os.getcwd()
+    user_path = os.path.join(current, username)
+    if os.path.exists(user_path) == True:
+        while (1):
+            choose = input('Bạn muốn xem email trong folder nào (Nhấn enter để thoát ra ngoài): ')
+            if (not choose):
+                break
+            elif choose == '1':
+                read_emails('Inbox', list_sender, list_subject)
+            elif choose == '2':
+                read_emails('Project', list_sender, list_subject)
+            elif choose == '3':
+                read_emails('Important', list_sender, list_subject)
+            elif choose == '4':
+                read_emails('Work', list_sender, list_subject)
+            elif choose == '5':
+                read_emails('Spam', list_sender, list_subject)
 
