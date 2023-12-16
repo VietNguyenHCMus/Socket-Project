@@ -20,7 +20,6 @@ def sendFile(client_socket):
             
             attachment_path = input(temp) 
             filename = os.path.basename(attachment_path)
-           
             
             # Check content-type
             content_type = filename[-3:]
@@ -32,7 +31,7 @@ def sendFile(client_socket):
             if(content_type == 'png'): temp = 'image/png'
             if(content_type == 'zip'): temp = 'application/zip'
                 
-            client_socket.send(b'--<END>\r\n')
+            client_socket.send(b'--boundary\r\n')
             client_socket.send(f'Content-Type: {temp}; name="{filename}"\r\n'.encode(FORMAT))
             client_socket.send(f'Content-Disposition: attachment; filename="{filename}"\r\n'.encode(FORMAT))
             client_socket.send(f'Content-Transfer-Encoding: base64\r\n\r\n'.encode(FORMAT))
@@ -45,3 +44,5 @@ def sendFile(client_socket):
             chunk_size = 76
             for i in range(0, len(data_encode), chunk_size):
                 client_socket.send(data_encode[i:i+chunk_size].encode(FORMAT) + b'\r\n')
+                
+            
