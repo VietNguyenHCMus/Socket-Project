@@ -18,7 +18,7 @@ def sendMail(localhost, PORT, SenderEmail):
     clientSocket = socket(AF_INET, SOCK_STREAM)
 
     # Establishing a TCP connection with mailserver
-    clientSocket.connect(localhost, PORT)
+    clientSocket.connect(server_address)
 
     confMsg = clientSocket.recv(1024)
 
